@@ -2,10 +2,16 @@ const koa = require('koa');
 const graphqlHTTP = require('koa-graphql');
 const mongoose = require('mongoose');
 const mount = require('koa-mount');
-// const bodyParser = require('koa-bodyparser');
+const router = require('koa-route');
+const { createApolloFetch } = require('apollo-fetch');
 
 const schema = require('./graphql/schema');
 const root = require('./graphql/root');
+
+const fetch = createApolloFetch({
+  uri: 'http://localhost:9000/graphql',
+});
+
 
 mongoose.connect('mongodb://localhost:27017/calendar', {
   useNewUrlParser: true,
@@ -18,7 +24,23 @@ db.on('error', console.error.bind( console, 'conection error:'));
 db.once('open', ()=> console.log('Database connected'));
 
 const app = new koa();
-// app.use(bodyParser())
+
+app.use(router.get('/', async ctx => {
+  await fetch({ 
+    query: `
+    {
+      listEvents {
+          id
+          title
+          allDay
+          start
+          end
+      }
+    }`}).then(res => {
+      ctx.body = res.data
+    })
+  
+}));
 app.listen(9000);
 
 app.on('error', err => {
