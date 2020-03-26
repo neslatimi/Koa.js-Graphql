@@ -4,6 +4,10 @@ module.exports = {
     listEvents() {
         return Event.find();
     },
+    listEventOne({id}) {
+        // console.log(id);
+        return Event.findById(id)
+    },
     createEvent(input) {
         const newEvent = new Event(input);
         return newEvent.save();

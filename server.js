@@ -25,9 +25,10 @@ db.once('open', ()=> console.log('Database connected'));
 
 const app = new koa();
 
+// Routing
 app.use(router.get('/', async ctx => {
   await fetch({ 
-    query: `
+   query: `
     {
       listEvents {
           id
@@ -36,11 +37,54 @@ app.use(router.get('/', async ctx => {
           start
           end
       }
-    }`}).then(res => {
+    }`
+  
+  }).then(res => {
       ctx.body = res.data
     })
   
 }));
+
+app.use(router.get('/:id', async (ctx, next) => {
+  const paramID = ctx.request.originalUrl.replace('/','');
+  await fetch({ 
+    query: `
+    {
+      listEventOne(id: "${paramID}")
+     {
+        id
+        title
+        allDay
+        start
+        end
+      }  
+    }
+    `
+  }).then(res => {
+        ctx.body = res.data
+    })
+  
+}));
+
+// app.use(router.post('/', async ctx => {
+//   console.log(ctx.req);
+//   await fetch({ 
+//     query: ` mutation{
+//       createEvent(title: $title, start: $start, end: $end) 
+//           {
+//               id
+//               title
+//               allDay
+//               start
+//               end
+//           }
+//   }`})
+//     .then(res => {
+//       ctx.body = res.data
+//     })
+// }));
+
+
 app.listen(9000);
 
 app.on('error', err => {
