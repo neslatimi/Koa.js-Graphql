@@ -1,25 +1,14 @@
 const Router = require('koa-router');
 const { createApolloFetch } = require('apollo-fetch');
-const fetch = createApolloFetch({
-    uri: 'http://localhost:9000/graphql',
-  });
-  const router = new Router();  
-
+const uri = 'http://localhost:9000/graphql';
+const fetch = createApolloFetch({ uri });
+const router = new Router(); 
+const query = require('../queries/query') 
 
 router
     .get('/', async (ctx, next) => {
             await fetch({ 
-            query: `
-            {
-                listEvents {
-                    id
-                    title
-                    allDay
-                    start
-                    end
-                }
-            }`
-
+            query: query.list
             }).then(res => {
                 ctx.body = res.data
             })
@@ -28,18 +17,8 @@ router
     
     .get('/:id', async (ctx, next) => {
         await fetch({ 
-            query: `
-            {
-            listEventOne(id: "${ctx.params.id}")
-            {
-                id
-                title
-                allDay
-                start
-                end
-            }  
-            }
-            `
+            query: query.listOne,
+            variables: { id : ctx.params.id}
         }).then(res => {
                 ctx.body = res.data
             })
